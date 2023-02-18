@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="eng">
+<head>
+    <title>CRUD TABLE</title>
+    <meta name="shipments" content="CRUD Table with shipments">
+
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+
+
+
+<body>
+
+<div id="search_container" class="input-group">
+    <input id="search_input" type="search" class="form-control rounded" placeholder="Search by ID, Customer, TrackingNo or Consignee" aria-label="Search" aria-describedby="search-addon" />
+    <button type="button" class="btn btn-outline-info">SEARCH</button>
+</div>
+
+<div id="edit_view_form">
+
+</div>
+
+<table id="full_table" class="table table-striped">
+    <thead>
+    <tr class="bg-info">
+        <th scope="col">ID</th>
+        <th scope="col">Date</th>
+        <th scope="col">Customer</th>
+        <th scope="col">TrackingNo</th>
+        <th scope="col">Status</th>
+        <th scope="col">Consignee</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+
+    <tbody id="table__data">
+
+
+    </tbody>
+
+</table>
+<div id="form" style="display: none;">
+    <form>
+        <div class="form-group">
+            <label for="orderNo">ID:</label>
+            <input type="text" class="form-control" id="orderNo" disabled>
+        </div>
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" class="form-control" id="date" disabled>
+        </div>
+        <div class="form-group">
+            <label for="customer">Customer:</label>
+            <input type="text" class="form-control" id="customer" disabled>
+        </div>
+        <div class="form-group">
+            <label for="trackingNo">TrackingNo:</label>
+            <input type="text" class="form-control" id="trackingNo" disabled>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <input type="text" class="form-control" id="status" disabled>
+        </div>
+        <div class="form-group">
+            <label for="consignee">Consignee:</label>
+            <input type="text" class="form-control" id="consignee" disabled>
+        </div>
+       <div class="btn__container"> <button id='btnSaveId' class='btn btn-info' onclick='saveEdit()'>Save</button>
+           <button id='btnCancel' class='btn btn-danger' onclick='cancelEdit()'>Cancel</button>
+       </div>
+    </form>
+</div>
+</body>
+
+
+<footer id="add_shipment" class="fixed-bottom">
+    <div id="btnAddContainer"><button id="btnAdd" onclick="addFormShipment()" class="btn btn-info">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i>Add
+    </button></div>
+
+    <form>
+        <table>
+            <tr>
+                <td class="td-data"></td>
+                <td class="td-data"><input type="text" style="" id="addOrderNo" placeholder="" readonly></td>
+                <td class="td-data"><input type="date" id="addDate"   placeholder="dd-mm-yyyy" ></td>
+                <td class="td-data"><input type="text" id="addCustomer" placeholder="Customer.."></td>
+                <td class="td-data"><input type="text" id="addTrackingNo" placeholder="Tracking No.."></td>
+                <td class="td-data"><input type="text" id="addStatus" placeholder="Status.."></td>
+                <td class="td-data"><input type="text" id="addConsignee" placeholder="Consignee.."></td>
+                <td class="td-data"><button id="btnAddShipment" onclick="addShipment()" class="btn btn-info"> <i class="fa fa-plus-circle" aria-hidden="true"></i>Add</button></td>
+            </tr>
+        </table>
+    </form>
+
+    <script>
+
+        function addFormShipment() {
+            const addForm = document.querySelector('#add_shipment form');
+            addForm.classList.add('show');
+            document.querySelector('#btnAdd').style.display = 'none';
+        }
+
+        const orderNoField = document.getElementById('addOrderNo');
+        orderNoField.disabled = true;
+        orderNoField.value = genOrderNo();
+    </script>
+</footer>
+
+
+
+</html>
+
+    <script>
+
+        // Fethcing the data from shipment.json file
+
+        let originalData = JSON.parse(localStorage.getItem("shipments")) || [];
+
+        // If original data is empty, fetch the data from shipments.json file and store it in localStorage
+
+        if (originalData.length === 0) {
+            fetch("shipments.json")
+                .then((response) => response.json())
+                .then((s_data) => {
+                    originalData = s_data;
+                    localStorage.setItem("shipments", JSON.stringify(originalData));
+                    createTable(originalData);
+                });
+        } else {
+            createTable(originalData);
+        }
+        /*2. search engine*/
+
+        // Search function to filter the data based on the user input
+        function searchData(value, data) {
+            return data.filter((d) => {
+                return d.customer.toLowerCase().includes(value.toLowerCase()) ||
+                    d.orderNo.toString().includes(value) ||
+                    d.consignee.toLowerCase().includes(value.toLowerCase()) ||
+                    d.trackingNo.toLowerCase().includes(value.toLowerCase());
+
+            });
+        }
+
+        $("#search_input").on("keyup", function () {
+            var value = $(this).val();
+            var data = searchData(value, originalData);
+            createTable(data);
+        });
+
+
+
+
+    </script>
+
